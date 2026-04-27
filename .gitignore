@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Banco de Dados e Dados Temporários
+dados_sensor.db
+backups/analise*.csv
+relatorios/*.html
+relatorio_anomalias.html
+scratch/
+
+# Logs
+*.log

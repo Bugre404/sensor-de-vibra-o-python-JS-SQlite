@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piezo Vision | Análise Preditiva</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- PapaParse para ler CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Three.js para o background animado DottedSurface -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    
+    <!-- Folha de estilos -->
+    <link rel="stylesheet" href="style.css?v=1.2">
+</head>
+<body>
+
+    <!-- Fundo 3D Animado (Dotted Surface) -->
+    <div id="dotted-surface"></div>
+    <!-- Máscara Escura Central para leitura -->
+    <div id="center-mask"></div>
+    <!-- Barra de Navegação -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            <span>PiezoVision</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active" id="tab-home">Home</a>
+            <a href="#" class="nav-link" id="tab-secoes">Seções de Análise</a>
+            <a href="#" class="nav-link" id="tab-relatorios">Relatórios de IA</a>
+            <a href="http://localhost:8501" target="_blank" class="nav-link">
+                Dashboard Streamlit
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 5px;">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Cabeçalho -->
+        <header class="glass-panel">
+            <h1>Piezo<span>Vision</span></h1>
+            <p>Monitoramento Preditivo de Vibração Industrial</p>
+        </header>
+
+        <!-- Seleção de Fonte de Dados -->
+        <section id="selection-section" class="selection-panel glass-panel reveal">
+            <div class="selection-content">
+                <h2>Selecione a Análise</h2>
+                
+                <div class="data-sources">
+                    <!-- SQLite / Tempo Real -->
+                    <div class="bauhaus-card" id="btn-sqlite" style="--card-bg: #151419; --primary: #00e5ff;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                        <h3>Dados em Tempo Real</h3>
+                        <p>Análise dos últimos registros diretos do banco SQLite</p>
+                    </div>
+
+                    <!-- Lista de Backups CSV -->
+                    <div class="bauhaus-card" style="--card-bg: #151419; --primary: #651fff;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        <h3>Arquivos de Backup (CSV)</h3>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">Ordenar por:</span>
+                            <select id="sort-home" class="chronicleButton" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); padding: 4px 10px; height: auto; font-size: 0.85rem;">
+                                <option value="recent">Mais Recentes</option>
+                                <option value="oldest">Mais Antigos</option>
+                                <option value="duration">Duração</option>
+                                <option value="id">ID</option>
+                            </select>
+                        </div>
+                        <p>Selecione 1 ou mais históricos para comparar:</p>
+                        <div class="table-container home-csv-table">
+                            <table class="modern-table" style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">Sel.</th>
+                                        <th style="width: 40px;">ID</th>
+                                        <th>Arquivo</th>
+                                        <th style="width: 80px;">Duração</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="csv-list">
+                                    <tr><td colspan="4" class="loading-text">Carregando arquivos...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="btn-load-csv" class="chronicleButton" type="button">
+                            <span><em>Analisar / Comparar</em></span>
+                            <span><em>Analisar / Comparar</em></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Principal (Gráficos) -->
+        <section id="dashboard" class="dashboard-hidden">
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="glass-panel kpi-card reveal">
+                    <h3>Registros Analisados</h3>
+                    <div id="kpi-total" class="kpi-value">0</div>
+                </div>
+                <div class="glass-panel kpi-card reveal">
+                    <h3>Maior Impacto (Pico)</h3>
+                    <div id="kpi-pico" class="kpi-value warning">0</div>
+                </div>
+                <div class="glass-panel kpi-card reveal">
+                    <h3>Status Geral</h3>
+                    <div id="kpi-status" class="kpi-value success">Normal</div>
+                </div>
+            </div>
+
+            <!-- Gráfico Principal (Média) -->
+            <div class="glass-panel chart-container reveal">
+                <div class="chart-header">
+                    <h2>Média de Vibração e Tendência</h2>
+                    <button id="btn-novo" class="btn-secondary">Voltar / Nova Análise</button>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="vibChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico Secundário (Picos) -->
+            <div class="glass-panel chart-container reveal">
+                <div class="chart-header">
+                    <h2>Impactos Máximos (Picos de Vibração)</h2>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="picoChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Texto Explicativo -->
+            <div class="glass-panel kpi-card reveal" style="text-align: left; padding: 30px;">
+                <h3 style="color: var(--primary); font-weight: 600; font-size: 1.2rem; margin-bottom: 15px;">Como interpretar estes dados?</h3>
+                <p style="margin-bottom: 10px; line-height: 1.6; color: var(--text-muted);">
+                    <strong>Média de Vibração:</strong> Representa a suavização do ruído geral da máquina. O aumento constante desta linha indica desgaste progressivo de componentes.
+                </p>
+                <p style="margin-bottom: 10px; line-height: 1.6; color: var(--text-muted);">
+                    <strong>Impactos Máximos (Picos):</strong> Representam os "solavancos" mais fortes que a máquina sofreu.
+                </p>
+            </div>
+        </section>
+
+        <!-- Seção de Seções de Análise (CSV) -->
+        <section id="secoes-view" class="dashboard-hidden">
+            <div class="glass-panel chart-container reveal">
+                <div class="chart-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Ordenar por:</span>
+                        <select id="sort-secoes" class="chronicleButton" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border); padding: 5px 15px; height: auto;">
+                            <option value="recent">Mais Recentes</option>
+                            <option value="oldest">Mais Antigos</option>
+                            <option value="duration">Duração</option>
+                            <option value="id">ID</option>
+                        </select>
+                        <button id="btn-back-home-secoes" class="btn-secondary">Voltar</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Data</th>
+                                <th>Nome do Arquivo</th>
+                                <th>Duração</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="secoes-list-body">
+                            <!-- Lista de CSVs via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Relatórios de IA -->
+        <section id="reports-view" class="dashboard-hidden">
+
+            <div class="glass-panel chart-container reveal">
+                <div class="chart-header">
+                    <h2>Histórico de Relatórios de IA</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btn-generate-report" class="btn-primary" style="background: var(--success); border: none;">⚡ Gerar Novo Relatório</button>
+                        <button id="btn-back-home" class="btn-secondary">Voltar</button>
+                    </div>
+                </div>
+
+                <!-- Seleção de Arquivos para IA -->
+                <div class="glass-panel" style="padding: 20px; margin-bottom: 20px; text-align: left;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Selecionar dados para o relatório:</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Se nenhum for selecionado, a IA usará o banco de dados principal (tempo real).</p>
+                    <div id="ai-file-selector" class="checkbox-list" style="max-height: 200px;">
+                        <!-- Checkboxes via JS -->
+                    </div>
+                </div>
+
+                <div id="reports-list" class="reports-grid">
+
+                    <!-- Lista de relatórios via JS -->
+                </div>
+
+                <!-- Explicação Técnica -->
+                <div class="glass-panel kpi-card reveal" style="text-align: left; margin-top: 40px; padding: 30px; border: 1px solid rgba(0, 229, 255, 0.2);">
+                    <h3 style="color: var(--primary); font-weight: 600; font-size: 1.2rem; margin-bottom: 15px;">Como este relatório é gerado?</h3>
+                    <p style="margin-bottom: 10px; line-height: 1.6; color: var(--text-muted);">
+                        <strong>Fonte de Dados:</strong> O sistema utiliza o banco de dados principal <code>dados_sensor.db</code>, que contém todo o histórico coletado em tempo real pelo Arduino.
+                    </p>
+                    <p style="margin-bottom: 10px; line-height: 1.6; color: var(--text-muted);">
+                        <strong>Algoritmo de IA:</strong> Utilizamos o <strong>Isolation Forest</strong> (Floresta de Isolamento). É um algoritmo de Machine Learning especializado em detectar anomalias sem precisar de exemplos prévios de falhas.
+                    </p>
+                    <p style="margin-bottom: 10px; line-height: 1.6; color: var(--text-muted);">
+                        <strong>O que ele busca?</strong> Ele analisa simultaneamente a média móvel, o desvio padrão e os picos de vibração. Pontos que se afastam drasticamente do padrão normal da máquina são "isolados" e marcados como anomalias (os 'X' vermelhos no gráfico).
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Visualizador do Relatório -->
+            <div id="report-viewer-container" class="glass-panel chart-container reveal" style="display: none; height: 80vh;">
+                <div class="chart-header">
+                    <h2 id="viewing-report-title">Visualizando Relatório</h2>
+                    <button id="btn-close-viewer" class="btn-secondary">Fechar</button>
+                </div>
+                <iframe id="report-frame" style="width: 100%; height: 100%; border: none; border-radius: 12px; background: white;"></iframe>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js?v=1.3"></script>
+</body>
+</html>

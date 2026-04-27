@@ -1,0 +1,10 @@
+streamlit
+pyserial
+pandas
+plotly
+scikit-learn
+numpy
+fastapi
+uvicorn
+pydantic
+python-multipart

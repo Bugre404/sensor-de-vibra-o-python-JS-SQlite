@@ -1,0 +1,659 @@
+:root {
+    --bg-color: #0b0f19;
+    --primary: #00e5ff;
+    --secondary: #651fff;
+    --text-main: #ffffff;
+    --text-muted: #a0aec0;
+    --glass-bg: rgba(11, 15, 25, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --danger: #ff1744;
+    --success: #00e676;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Fundo Animado DottedSurface */
+#dotted-surface {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -2;
+    background-color: #0b0f19;
+}
+
+/* Máscara Central (Escurece e foca o meio da tela) */
+#center-mask {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    pointer-events: none;
+    /* Um gradiente radial que é transparente nas bordas e quase opaco no centro */
+    background: radial-gradient(ellipse at center, rgba(11, 15, 25, 0.7) 0%, rgba(11, 15, 25, 0.4) 60%, transparent 100%);
+}
+
+/* Barra de Navegação */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: rgba(11, 15, 25, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    z-index: 1000;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 0.5px;
+}
+
+.nav-logo svg {
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.5));
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link:hover {
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.nav-link.active {
+    color: var(--text-main);
+    position: relative;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+    border-radius: 2px;
+}
+
+/* Layout Principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 20px 40px 20px; /* Adicionado padding-top para compensar a navbar fixa */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Glassmorphism */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Cabeçalho */
+header {
+    padding: 30px 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 5px;
+    transition: font-size 0.3s ease;
+}
+
+header h1 span {
+    color: var(--primary);
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    transition: opacity 0.3s ease;
+}
+
+/* Efeito Reveal ao Scroll */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    filter: blur(10px);
+    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+/* Seleção de Dados */
+.selection-content {
+    padding: 40px;
+    text-align: center;
+}
+
+.selection-content h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+.data-sources {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Bauhaus Card (antigo source-card) */
+.bauhaus-card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    min-height: 20rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: 1px 12px 25px rgba(0,0,0,0.5);
+    border-radius: 24px;
+    border: 2px solid transparent;
+    --rotation: 4.2rad;
+    background-image:
+      linear-gradient(#151419, #151419),
+      linear-gradient(calc(var(--rotation, 4.2rad)), var(--primary) 0, #151419 30%, transparent 80%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    color: var(--text-main);
+    padding: 2rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.bauhaus-card:hover {
+    transform: translateY(-5px);
+}
+
+.bauhaus-card::before {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 24px;
+    z-index: -1;
+    border: 3px solid transparent;
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+}
+
+.bauhaus-card svg {
+    margin-bottom: 1rem;
+}
+
+.bauhaus-card h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.bauhaus-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Botão Chronicle (usado dentro do card de upload) */
+.chronicleButton {
+  --chronicle-button-border-radius: 12px;
+  border-radius: var(--chronicle-button-border-radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  line-height: 1;
+  padding: 1rem 1.232rem;
+  cursor: pointer;
+  border: none;
+  font-weight: 700;
+  background: var(--primary);
+  color: #111014;
+  transition: background 0.4s linear, color 0.4s linear;
+  will-change: background, color;
+  position: relative;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.chronicleButton:hover {
+  background: #fff;
+  color: #111014;
+}
+
+.chronicleButton span {
+  position: relative;
+  display: block;
+  perspective: 108px;
+}
+
+.chronicleButton span:nth-of-type(2) {
+  position: absolute;
+}
+
+.chronicleButton em {
+  font-style: normal;
+  display: inline-block;
+  font-size: 1rem;
+  color: inherit;
+  will-change: transform, opacity, color, transition;
+  transition: transform 0.55s cubic-bezier(.645,.045,.355,1), opacity 0.35s linear 0.2s, color 0.4s linear;
+}
+
+.chronicleButton span:nth-of-type(1) em {
+  transform-origin: top;
+}
+.chronicleButton span:nth-of-type(2) em {
+  opacity: 0;
+  transform: rotateX(-90deg) scaleX(.9) translate3d(0,10px,0);
+  transform-origin: bottom;
+}
+.chronicleButton:hover span:nth-of-type(1) em {
+  opacity: 0;
+  transform: rotateX(90deg) scaleX(.9) translate3d(0,-10px,0);
+}
+.chronicleButton:hover span:nth-of-type(2) em {
+  opacity: 1;
+  transform: rotateX(0deg) scaleX(1) translateZ(0);
+  transition: transform 0.75s cubic-bezier(.645,.045,.355,1), opacity 0.35s linear 0.3s, color 0.4s linear;
+}
+
+.checkbox-list {
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+/* Custom Scrollbar for list */
+.checkbox-list::-webkit-scrollbar {
+    width: 6px;
+}
+.checkbox-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.checkbox-list::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 4px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.checkbox-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.checkbox-item input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.loading-text {
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+/* Botões */
+button {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), #00b4d8);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+    margin-top: 20px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Dashboard */
+.dashboard-hidden {
+    display: none;
+}
+
+.dashboard-visible {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* KPIs */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.kpi-card {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.kpi-card h3 {
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.kpi-value.warning {
+    color: #ffd600;
+}
+
+.kpi-value.success {
+    color: var(--success);
+}
+
+.kpi-value.danger {
+    color: var(--danger);
+}
+
+/* Gráfico */
+.chart-container {
+    padding: 30px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chart-header h2 {
+    font-weight: 600;
+}
+
+.canvas-wrapper {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .chart-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+}
+
+/* Grid de Relatórios */
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.report-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: left;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.report-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-3px);
+}
+
+.report-item h4 {
+    color: var(--text-main);
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.report-item p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+#report-frame {
+    margin-top: 20px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos de Tabela Moderna */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.home-csv-table {
+    height: 310px; /* Altura fixa para mostrar exatamente o cabeçalho + 7 itens */
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 20px;
+}
+
+/* Scrollbar personalizada para a tabela da home */
+.home-csv-table::-webkit-scrollbar {
+    width: 6px;
+    display: block;
+}
+.home-csv-table::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+.home-csv-table::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 4px;
+}
+.home-csv-table::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+
+.home-csv-table .modern-table th {
+    position: sticky;
+    top: 0;
+    background: #151419;
+    z-index: 1;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.modern-table th {
+    text-align: left;
+    padding: 15px;
+    border-bottom: 1px solid var(--glass-border);
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.modern-table td {
+    padding: 12px 15px; /* Ligeiramente mais compacto para caber 7 itens melhor */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modern-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.btn-download-small {
+    background: var(--primary);
+    color: #0b0f19;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.8rem;
+}
+
+.btn-download-small:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--primary);
+}
+
+select.chronicleButton {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 8px 35px 8px 15px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+select.chronicleButton:hover {
+    border-color: var(--primary);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+select.chronicleButton option {
+    background: #151419;
+    color: white;
+    padding: 10px;
+}
+
+
